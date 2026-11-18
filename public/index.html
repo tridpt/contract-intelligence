@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⚖️ ContractShield & Redline Studio v3.0 — Kiểm Toán Hợp Đồng, Mô Phỏng Thiệt Hại, Lịch .ICS, Hỏi Luật Sư AI & OCR</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-logo">⚖️</div>
+      <div>
+        <h1>ContractShield <span class="gold-badge">ENTERPRISE CLM v4.0 • VI / EN</span></h1>
+        <p class="subtitle">Kiểm Toán Bẫy • Mô Phỏng Tiền Phạt • Lịch .ICS • Hỏi Luật Sư AI • OCR • Ký Số PKI Ed25519 • Quét Hàng Loạt &amp; Truy Vết Rò Rỉ</p>
+      </div>
+    </div>
+
+    <div class="topbar-actions">
+      <label class="btn btn-outline file-upload-label" title="Tải tệp .DOCX, .PDF, Ảnh hợp đồng (.PNG/.JPG) hoặc .TXT">
+        📂 Tải .DOCX / .PDF / Ảnh OCR
+        <input type="file" id="docxUploadInput" accept=".docx,.pdf,.png,.jpg,.jpeg,.webp,.txt,.md" hidden />
+      </label>
+      <button id="btnExportCleanDocx" class="btn btn-gold" title="Xuất hợp đồng kèm mã niêm phong SHA-256 ra tệp Word (.docx)">
+        📥 Xuất Hợp Đồng (.DOCX)
+      </button>
+      <button id="btnExportAuditDocx" class="btn btn-outline" title="Xuất Hợp đồng kèm Phụ lục Kiểm toán Pháp lý (.docx)">
+        📑 Xuất Kèm Phụ Lục (.DOCX)
+      </button>
+      <a href="http://localhost:4000" target="_blank" class="btn btn-nexus">🎛️ NexusHub</a>
+    </div>
+  </header>
+
+  <!-- PRESET BAR -->
+  <section class="preset-bar">
+    <div class="preset-bar-label">📋 6 MẪU HỢP ĐỒNG THỰC CHIẾN (VIỆT NAM &amp; QUỐC TẾ):</div>
+    <div id="presetList" class="preset-chips"></div>
+  </section>
+
+  <!-- NAVIGATION TABS (10 ENTERPRISE WORKSTATIONS) -->
+  <nav class="workspace-tabs">
+    <button class="tab-btn active" data-tab="tab-audit">🛡️ 1. Kiểm Toán Bẫy</button>
+    <button class="tab-btn" data-tab="tab-sim">🧮 2. Tiền Phạt &amp; Lịch .ICS</button>
+    <button class="tab-btn" data-tab="tab-counsel">🧠 3. Luật Sư AI &amp; Playbook</button>
+    <button class="tab-btn" data-tab="tab-ocr">📸 4. Quét Ảnh Giấy OCR</button>
+    <button class="tab-btn" data-tab="tab-negotiate">✉️ 5. Email Đàm Phán</button>
+    <button class="tab-btn" data-tab="tab-seal">✍️ 6. Ký Số Ed25519 &amp; SHA-256</button>
+    <button class="tab-btn" data-tab="tab-batch">📂 7. Quét Hàng Loạt (.CSV)</button>
+    <button class="tab-btn" data-tab="tab-leak">🕵️‍♂️ 8. Vân Tay Chống Rò Rỉ</button>
+    <button class="tab-btn" data-tab="tab-redline">🔍 9. So Sánh Redline</button>
+    <button class="tab-btn" data-tab="tab-pii">🔐 10. Che PII &amp; Tạo Mẫu</button>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-container">
+    <!-- ================================================================== -->
+    <!-- TAB 1: KIỂM TOÁN RỦI RO & BẮT ĐIỀU KHOẢN BẪY (VIỆT & ANH) -->
+    <!-- ================================================================== -->
+    <section id="tab-audit" class="tab-panel active">
+      <div class="kpi-grid">
+        <div class="kpi-card score-card">
+          <div class="kpi-label">ĐIỂM AN TOÀN PHÁP LÝ <span id="detectedLangBadge" class="lang-pill">🇻🇳 VI</span></div>
+          <div class="score-row">
+            <span id="safetyScoreVal" class="score-number">--</span>
+            <span id="safetyGradeBadge" class="grade-pill">-</span>
+          </div>
+          <p id="safetyVerdictText" class="kpi-sub">Đang phân tích hợp đồng...</p>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">THỐNG KÊ ĐIỀU KHOẢN BẪY (+ PLAYBOOK)</div>
+          <div class="severity-counters">
+            <div class="sev-box critical">
+              <span id="countCritical">0</span>
+              <small>Vi phạm luật / Nguy hiểm</small>
+            </div>
+            <div class="sev-box high">
+              <span id="countHigh">0</span>
+              <small>Bất lợi nặng (1 chiều)</small>
+            </div>
+            <div class="sev-box medium">
+              <span id="countMedium">0</span>
+              <small>Mơ hồ / Thiếu điều khoản</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">CÁN CÂN QUYỀN LỢI &amp; HÀNH ĐỘNG NHANH</div>
+          <div class="balance-bar-wrap">
+            <div class="balance-labels">
+              <span id="partyAPercentLabel">Bên A: 50%</span>
+              <span id="partyBPercentLabel">Bên B (Bạn): 50%</span>
+            </div>
+            <div class="balance-track">
+              <div id="balanceBarA" class="balance-fill-a" style="width: 50%"></div>
+            </div>
+          </div>
+          <div class="kpi-actions-inline" style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button id="btnFixAllRisks" class="btn btn-emerald btn-sm">✨ 1-Click Sửa Hết Bẫy</button>
+            <button id="btnJumpSim" class="btn btn-outline btn-sm">🧮 Tính Tiền Phạt</button>
+            <button id="btnJumpNegotiate" class="btn btn-gold btn-sm">✉️ Email Đàm Phán</button>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">THẨM ĐỊNH ĐỐI TÁC LIÊN THÔNG OMNITRACE OSINT</div>
+          <div id="extractedMetricsBox" class="metrics-tags"></div>
+          <div class="kpi-actions-inline" style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
+            <button id="btnPushOmnitrace" class="btn btn-outline btn-sm" title="Đẩy trực tiếp MST, Email, SĐT, STK đối tác vào đồ thị OmniTrace OSINT (Port 4090)">
+              🕸️ Đẩy IOC Sang Đồ Thị OmniTrace (4090)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="workbench-grid">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>📜 Văn Bản Hợp Đồng (Tiếng Việt &amp; Tiếng Anh Quốc Tế)</h2>
+              <p class="panel-desc">Bấm vào điều khoản bôi đỏ để đối chiếu điều luật hoặc chuyển sang chế độ Soạn thảo trực tiếp</p>
+            </div>
+            <div class="panel-tools">
+              <button id="btnToggleHighlightMode" class="btn btn-outline btn-sm">🖍️ Chế độ: Đánh dấu Rủi ro</button>
+              <button id="btnRunAudit" class="btn btn-gold btn-sm">🔍 Kiểm Toán Ngay</button>
+            </div>
+          </div>
+
+          <div id="contractHighlightedView" class="contract-highlighted-view"></div>
+          <textarea id="contractRawEditor" class="contract-raw-editor hidden" spellcheck="false"></textarea>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>🚨 Danh Sách Điều Khoản Bẫy &amp; Căn Cứ Pháp Luật</h2>
+              <p class="panel-desc">Đối chiếu BLDS 2015, BLLĐ 2019, Luật TM 2005, Nghị định 13/2023, UCC/MSA &amp; Custom Playbook</p>
+            </div>
+          </div>
+
+          <div id="findingsList" class="findings-list"></div>
+          <div id="missingClausesBox" class="missing-clauses-box"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- TAB 2: MÁY MÔ PHỎNG THIỆT HẠI TÀI CHÍNH & LỊCH NGHĨA VỤ .ICS -->
+    <!-- ================================================================== -->
+    <section id="tab-sim" class="tab-panel">
+      <div class="workbench-grid">
+        <!-- LEFT: WHAT-IF BREACH & PENALTY CALCULATOR -->
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>🧮 Máy Mô Phỏng Thiệt Hại Tài Chính ("What-If Breach &amp; Penalty Simulator")</h2>
+              <p class="panel-desc">Kéo thanh trượt giả định sự cố để thấy rõ số tiền mặt bị mất nếu ký bản hợp đồng bẫy so với trần tối đa của Pháp luật</p>
+            </div>
+          </div>
+
+          <div class="builder-form">
+            <div class="slider-group">
+              <div class="slider-label-row">
+                <label>⏱️ Giả định số ngày bàn giao / thanh toán trễ hạn:</label>
+                <strong id="simDelayDaysVal" class="gold-text">20 ngày</strong>
+              </div>
+              <input type="range" id="simDelayDaysRange" min="0" max="90" value="20" class="range-slider" />
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-label-row">
+                <label>📆 Thời gian tính lãi vay / duy trì hợp đồng:</label>
+                <strong id="simLoanMonthsVal" class="gold-text">12 tháng</strong>
+              </div>
+              <input type="range" id="simLoanMonthsRange" min="1" max="36" value="12" class="range-slider" />
+            </div>
+
+            <div class="checkbox-grid">
+              <label>
+                <input type="checkbox" id="simEarlyExitCheck" checked />
+                💥 Kích hoạt sự cố Chấm dứt sớm / Tất toán trước hạn / Tranh chấp nghiệm thu
+              </label>
+            </div>
+
+            <div id="simResultBox" class="sim-result-box"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT: OBLIGATION TIMELINE & .ICS CALENDAR EXPORT -->
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>📅 Sơ Đồ Lịch Nghĩa Vụ &amp; Chuông Nhắc Hẹn (.ICS Calendar)</h2>
+              <p class="panel-desc">Không bao giờ quên hạn báo hủy tự động gia hạn (trước 30–90 ngày) hay kỳ đòi tiền nghiệm thu</p>
+            </div>
+            <button id="btnExportIcsCalendar" class="btn btn-gold btn-sm">
+              🔔 Tải File Lịch Nhắc Hẹn (.ICS)
+            </button>
+          </div>
+
+          <div id="obligationMetaBanner" class="metrics-tags" style="margin-bottom:12px;"></div>
+          <div id="obligationTimelineList" class="timeline-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- TAB 3: HỎI ĐÁP LUẬT SƯ AI TRỰC TIẾP & CUSTOM PLAYBOOK -->
+    <!-- ================================================================== -->
+    <section id="tab-counsel" class="tab-panel">
+      <div class="workbench-grid">
+        <!-- LEFT: HYBRID AI LEGAL COUNSEL Q&A -->
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>🧠 Hỏi-Đáp Tình Huống Trực Tiếp Trên Hợp Đồng (Hybrid Legal Counsel)</h2>
+              <p class="panel-desc">Hoạt động ngay 100% Offline bằng Engine Truy xuất Điều khoản Pháp lý, hoặc nhập Gemini API Key để phân tích sâu bằng LLM</p>
+            </div>
+          </div>
+
+          <div class="quick-q-chips" id="quickQuestionChips">
+            <button type="button" class="preset-chip q-chip">Nếu tôi xin nghỉ việc sớm hoặc hủy hợp đồng thì mất bao nhiêu tiền?</button>
+            <button type="button" class="preset-chip q-chip">Khi nào tôi mới nhận được đủ tiền thanh toán / tiền cọc?</button>
+            <button type="button" class="preset-chip q-chip">Quyền sở hữu mã nguồn (IP) và cấm cạnh tranh đang quy định thế nào?</button>
+            <button type="button" class="preset-chip q-chip">Mức phạt trễ hạn hoặc lãi suất trong hợp đồng này có trái luật không?</button>
+          </div>
+
+          <div id="qaChatHistory" class="qa-chat-box">
+            <div class="qa-msg ai">
+              <strong>⚖️ Trợ lý Luật sư ContractShield:</strong> Chào bạn! Mình đã đọc toàn bộ các điều khoản của hợp đồng đang mở. Hãy bấm một câu hỏi gợi ý phía trên hoặc gõ bất kỳ tình huống nào bạn đang lo lắng nhé!
+            </div>
+          </div>
+
+          <div class="qa-input-row">
+            <input type="text" id="qaQuestionInput" class="input-control" style="flex:1;" placeholder="Nhập câu hỏi tình huống (VD: Nếu khách hàng chậm nghiệm thu thì sao?)..." />
+            <button id="btnAskCounsel" class="btn btn-gold">📨 Hỏi Luật Sư</button>
+          </div>
+
+          <div style="margin-top:10px; display:flex; gap:8px; align-items:center;">
+            <small style="color:#94a3b8;">🔑 Tùy chọn Gemini API Key (để trống vẫn chạy Offline Counsel mượt mà):</small>
+            <input type="password" id="qaGeminiKeyInput" class="input-control" style="flex:1; padding:5px 10px; font-size:12px;" placeholder="AIzaSy... (Không bắt buộc)" />
+          </div>
+        </div>
+
+        <!-- RIGHT: CUSTOM PLAYBOOK STUDIO -->
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>📏 Bộ Quy Tắc Kiểm Toán Riêng Của Bạn (Custom Playbook)</h2>
+              <p class="panel-desc">Bật các tiêu chuẩn tài chính riêng của bạn hoặc tự thêm từ khóa/Regex để máy tự động quét bắt lỗi</p>
+            </div>
+          </div>
+
+          <div class="builder-form" style="margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid var(--border);">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Tên quy tắc riêng:</label>
+                <input type="text" id="pbTitleInput" class="input-control" placeholder="VD: Cấm giữ bảo hành quá 12 tháng" />
+              </div>
+              <div class="form-group">
+                <label>Cụm từ / Biểu thức Regex cần bắt:</label>
+                <input type="text" id="pbPatternInput" class="input-control" placeholder="VD: bảo hành\s*(?:24|36)\s*tháng" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Mức độ nghiêm trọng:</label>
+                <select id="pbSeveritySelect" class="select-control">
+                  <option value="HIGH">🟠 HIGH — Bất lợi cao (-15 điểm)</option>
+                  <option value="CRITICAL">🔴 CRITICAL — Cấm ký (-22 điểm)</option>
+                  <option value="MEDIUM">🟡 MEDIUM — Cần lưu ý (-10 điểm)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Câu chữ đề xuất thay thế:</label>
+                <input type="text" id="pbReplaceInput" class="input-control" placeholder="VD: Thời gian bảo hành miễn phí là 06 - 12 tháng." />
+              </div>
+            </div>
+            <button id="btnAddPlaybookRule" class="btn btn-emerald btn-sm" style="align-self:flex-start;">
+              ➕ Thêm Vào Playbook &amp; Quét Lại Hợp Đồng
+            </button>
+          </div>
+
+          <div id="playbookRulesList" class="findings-list" style="max-height:330px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- TAB 4: QUÉT ẢNH CHỤP HỢP ĐỒNG GIẤY TẠI CHỖ (OCR SCANNER) -->
+    <!-- ================================================================== -->
+    <section id="tab-ocr" class="tab-panel">
+      <div class="workbench-grid">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>📸 Máy Quét Ảnh Chụp Hợp Đồng Giấy Tại Bàn Ký (Offline OCR vie+eng)</h2>
+              <p class="panel-desc">Khi đối tác chỉ đưa tờ hợp đồng giấy in sẵn tại quán cà phê/văn phòng: Chụp ảnh hoặc tải ảnh lên để bóc chữ &amp; soi điều khoản bẫy ngay!</p>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+            <label class="btn btn-gold file-upload-label">
+              🖼️ Chọn Ảnh Hợp Đồng (.PNG / .JPG / .WEBP)
+              <input type="file" id="ocrImageUploadInput" accept=".png,.jpg,.jpeg,.webp,.bmp" hidden />
+            </label>
+            <button id="btnToggleWebcam" class="btn btn-outline">📷 Bật Camera Chụp Trực Tiếp</button>
+            <button id="btnCaptureWebcam" class="btn btn-emerald hidden">⚡ Chụp &amp; Quét OCR Ngay</button>
+            <button id="btnDemoSamplePaperOcr" class="btn btn-outline" title="Sinh một bức ảnh chụp trang hợp đồng giấy có dấu đỏ để kiểm thử OCR ngay lập tức">
+              🧪 Tạo Ảnh Hợp Đồng Giấy Mẫu &amp; Chạy Thử OCR
+            </button>
+          </div>
+
+          <div class="ocr-preview-stage">
+            <video id="ocrWebcamVideo" class="hidden" autoplay playsinline style="max-width:100%; border-radius:8px;"></video>
+            <canvas id="ocrSampleCanvas" width="820" height="460" style="max-width:100%; border-radius:8px; border:1px solid var(--border); background:#f8fafc;"></canvas>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>📝 Văn Bản Trích Xuất Từ Ảnh Chụp (OCR Output)</h3>
+              <p id="ocrStatusMeta" class="panel-desc">Engine: Local Tesseract LSTM (vie+eng) + Windows WinRT OCR</p>
+            </div>
+            <button id="btnSendOcrToAuditor" class="btn btn-emerald btn-sm">
+              🛡️ Đẩy Văn Bản OCR Sang Trạm Kiểm Toán Bẫy
+            </button>
+          </div>
+
+          <textarea id="ocrResultTextarea" class="contract-raw-editor" style="height: 430px;" placeholder="Văn bản nhận diện từ ảnh chụp trang giấy hợp đồng sẽ xuất hiện tại đây..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- TAB 5: TỰ ĐỘNG SOẠN EMAIL / TIN NHẮN ĐÀM PHÁN GỬI ĐỐI TÁC -->
+    <!-- ================================================================== -->
+    <section id="tab-negotiate" class="tab-panel">
+      <div class="workbench-grid">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>✉️ Trạm Soạn Thư Đàm Phán Sửa Hợp Đồng (Negotiation Counsel)</h2>
+              <p class="panel-desc">Tự động chuyển các điều khoản bẫy phát hiện được thành Email/Tin nhắn đàm phán thuyết phục</p>
+            </div>
+          </div>
+
+          <div class="builder-form">
+            <div class="form-group">
+              <label>1. Chọn Giọng Văn Đàm Phán:</label>
+              <div class="tone-selector-grid">
+                <button type="button" class="tone-card active" data-tone="COLLABORATIVE">
+                  <strong>🤝 Mềm Mỏng &amp; Hợp Tác</strong>
+                  <small>Khéo léo, thiện chí — Phù hợp gửi HR khi nhận Offer lương hoặc Chủ nhà</small>
+                </button>
+                <button type="button" class="tone-card" data-tone="PROFESSIONAL">
+                  <strong>⚖️ Chuyên Nghiệp Pháp Chế</strong>
+                  <small>Đĩnh đạc, viện dẫn điều luật chuẩn mực — Phù hợp giao dịch B2B / Freelance</small>
+                </button>
+                <button type="button" class="tone-card" data-tone="FIRM">
+                  <strong>🛡️ Cứng Rắn &amp; Kiên Quyết</strong>
+                  <small>Yêu cầu sửa bắt buộc các điều khoản vi phạm luật trước khi đặt bút ký</small>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Ngôn ngữ Thư đàm phán:</label>
+                <select id="negLangSelect" class="select-control">
+                  <option value="AUTO">🌐 Tự động theo ngôn ngữ Hợp đồng (VI / EN)</option>
+                  <option value="VI">🇻🇳 Tiếng Việt</option>
+                  <option value="EN">🇬🇧 Tiếng Anh (International Business English)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Tên Hợp đồng / Dự án:</label>
+                <input type="text" id="negContractTitle" class="input-control" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Người nhận (Đối tác / HR / Chủ nhà):</label>
+                <input type="text" id="negRecipientName" class="input-control" value="Phòng Nhân sự - Pháp chế / Quý Đối tác" />
+              </div>
+              <div class="form-group">
+                <label>Người gửi (Tên của bạn / Đơn vị):</label>
+                <input type="text" id="negSenderName" class="input-control" value="Nguyễn Minh Quân" />
+              </div>
+            </div>
+
+            <button id="btnGenerateNegEmail" class="btn btn-gold" style="justify-content:center; padding:12px;">
+              ✨ Tạo Ngay Bản Thảo Email / Tin Nhắn Đàm Phán
+            </button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>📨 Bản Thảo Email / Tin Nhắn Sẵn Sàng Gửi Đi</h3>
+              <p id="negMetaStatus" class="panel-desc">Đã trích dẫn đầy đủ căn cứ pháp lý và câu chữ đề xuất thay thế</p>
+            </div>
+            <div class="panel-tools">
+              <button id="btnCopyNegEmail" class="btn btn-emerald btn-sm">📋 Copy Toàn Bộ</button>
+              <button id="btnOpenMailto" class="btn btn-outline btn-sm">📧 Mở Ứng Dụng Mail</button>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:10px;">
+            <label>Tiêu đề Email (Subject):</label>
+            <input type="text" id="negEmailSubject" class="input-control" readonly />
+          </div>
+
+          <textarea id="negEmailBody" class="contract-raw-editor" style="height: 430px; font-family: 'Segoe UI', sans-serif;" spellcheck="false"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- TAB 6: NIÊM PHONG SHA-256 CHỐNG ĐÁNH TRÁO BẢN KÝ -->
+    <!-- ================================================================== -->
+    <section id="tab-seal" class="tab-panel">
+      <div class="workbench-grid">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>🔏 Bước 1: Tạo Chứng Thư Niêm Phong Hợp Đồng (SHA-256 Seal)</h2>
+              <p class="panel-desc">Khóa mã băm SHA-256 của bản thảo đã chốt trên mạng trước khi đi in giấy ký kết</p>
+            </div>
+          </div>
+
+          <div class="builder-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Tên Bản Hợp Đồng Chốt Ký:</label>
+                <input type="text" id="sealTitleInput" class="input-control" value="Bản Hợp Đồng Chốt Cuối Cùng Trước Khi Ký" />
+              </div>
+              <div class="form-group">
+                <label>Ghi chú người duyệt:</label>
+                <input type="text" id="sealNoteInput" class="input-control" value="Đã thống nhất qua Email ngày hôm nay" />
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button id="btnCreateSeal" class="btn btn-gold">🔏 Đóng Dấu Niêm Phong SHA-256</button>
+              <button id="btnExportSealedPdf" class="btn btn-outline">📄 Xuất Bản Niêm Phong (.PDF)</button>
+            </div>
+
+            <div id="activeSealCertificateCard" class="seal-cert-card">
+              <p style="color:#94a3b8;">Hãy bấm nút "Đóng Dấu Niêm Phong SHA-256" ở trên để sinh chứng thư bảo toàn nội dung!</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>🔎 Bước 2: Kiểm Chứng Bản Đem Đi Ký (Chống Tráo Số / Sửa Ngầm)</h2>
+              <p class="panel-desc">Tải file .DOCX / .PDF / Ảnh chụp bản in đối tác đưa để soi xem có bị lén sửa 1 chữ số nào không</p>
+            </div>
+            <div class="panel-tools">
+              <label class="btn btn-outline btn-sm file-upload-label">
+                📂 Nạp File Cần Soi
+                <input type="file" id="sealVerifyUploadInput" accept=".docx,.pdf,.png,.jpg,.txt,.md" hidden />
+              </label>
+              <button id="btnSimulateTamperAttack" class="btn btn-outline btn-sm">
+                🧪 Giả Lập Đối Tác Lén Tráo 1 Con Số
+              </button>
+            </div>
+          </div>
+
+          <textarea id="sealCandidateTextarea" class="redline-textarea" style="height: 190px; margin-bottom:12px;"></textarea>
+
+          <button id="btnRunSealVerify" class="btn btn-emerald" style="justify-content:center; padding:11px; margin-bottom:12px;">
+            🛡️ Đối Chiếu Mã Băm SHA-256 Với Bản Đã Niêm Phong
+          </button>
+
+          <div id="sealVerifyResultBox"></div>
+        </div>
+      </div>
+
+      <!-- v4.0 CRYPTOGRAPHIC ED25519 PKI E-SIGNATURE PAD -->
+      <div class="workbench-grid" style="margin-top:18px;">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>✍️ Bàn Ký Điện Tử Vẽ Tay &amp; Chữ Ký Số Mật Mã Bất Đối Xứng Ed25519 (PKI)</h2>
+              <p class="panel-desc">Sinh cặp khóa Ed25519 (RFC 8032), vẽ chữ ký tay trên Canvas và đóng chứng thư chữ ký số không thể giả mạo vào hợp đồng</p>
+            </div>
+            <button id="btnClearSigPad" class="btn btn-outline btn-sm">🧹 Xóa Vẽ Lại</button>
+          </div>
+
+          <div class="builder-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Họ tên Người ký số:</label>
+                <input type="text" id="esignSignerName" class="input-control" value="Nguyễn Minh Quân" />
+              </div>
+              <div class="form-group">
+                <label>Tư cách ký &amp; Email xác thực:</label>
+                <input type="text" id="esignSignerEmail" class="input-control" value="minhquan.dev@gmail.com" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Ký tay trực tiếp bằng Chuột / Cảm ứng trên mặt giấy điện tử:</label>
+              <canvas id="esignCanvasPad" width="520" height="150" style="width:100%; height:150px; background:#fff; border-radius:8px; border:2px dashed #475569; cursor:crosshair;"></canvas>
+            </div>
+
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button id="btnExecuteEd25519Sign" class="btn btn-gold">
+                ✍️ Ký Số Ed25519 &amp; Đóng Khung Chứng Thư Vào Hợp Đồng
+              </button>
+              <button id="btnExportSignedDocx" class="btn btn-emerald">
+                📥 Tải Bản Đã Ký Số PKI (.DOCX)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>🔐 Chứng Thư Chữ Ký Số Ed25519 &amp; Xác Thực Khóa Công Khai (Public Key Verify)</h3>
+              <p class="panel-desc">Dùng Public Key kiểm chứng chữ ký mật mã — sửa 1 dấu chấm sau khi ký sẽ làm chữ ký mất hiệu lực ngay lập tức</p>
+            </div>
+            <button id="btnVerifyEd25519Sig" class="btn btn-outline btn-sm">🔍 Kiểm Chứng Chữ Ký PKI</button>
+          </div>
+
+          <div id="esignCertificateOutput" class="seal-cert-card">
+            <p style="color:#94a3b8;">Vẽ chữ ký ở khung bên trái rồi bấm "Ký Số Ed25519" để sinh cặp khóa mật mã PKI và chứng thư số!</p>
+          </div>
+          <div id="esignVerifyBannerBox" style="margin-top:10px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- TAB 7: QUÉT KIỂM TOÁN HÀNG LOẠT NHIỀU HỢP ĐỒNG & XUẤT EXCEL .CSV -->
+    <!-- ================================================================== -->
+    <section id="tab-batch" class="tab-panel">
+      <div class="redline-top-controls">
+        <div>
+          <h2>📂 Trung Tâm Kiểm Toán Hàng Loạt Kho Hợp Đồng &amp; Ma Trận Rủi Ro (Batch Portfolio Scanner)</h2>
+          <p class="panel-desc">Kéo-thả hoặc chọn cùng lúc 5–20 file (.DOCX, .PDF, Ảnh chụp, .TXT) để xếp hạng hợp đồng nguy hiểm nhất &amp; xuất bảng tổng hợp Excel (.CSV)</p>
+        </div>
+        <div class="panel-tools">
+          <label class="btn btn-gold file-upload-label">
+            📂 Chọn Nhiều File Hợp Đồng Cùng Lúc
+            <input type="file" id="batchMultiFilesInput" accept=".docx,.pdf,.png,.jpg,.txt,.md" multiple hidden />
+          </label>
+          <button id="btnRunDemoBatchPortfolio" class="btn btn-outline">
+            ⚡ Quét Thử Toàn Bộ Kho 6 Hợp Đồng Mẫu
+          </button>
+          <button id="btnExportBatchCsv" class="btn btn-emerald">
+            📊 Xuất Bảng Xếp Hạng Excel (.CSV)
+          </button>
+        </div>
+      </div>
+
+      <div id="batchSummaryKpis" class="kpi-grid"></div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h3>📊 Bảng Xếp Hạng Rủi Ro Danh Mục Hợp Đồng (Ưu tiên xử lý từ Nguy hiểm nhất ➔ An toàn nhất)</h3>
+        </div>
+        <div id="batchMatrixTableWrap" style="overflow-x:auto;">
+          <p style="color:#94a3b8; padding:12px;">Bấm "Quét Thử Toàn Bộ Kho 6 Hợp Đồng Mẫu" hoặc tải nhiều file hợp đồng lên để xem Ma trận Rủi ro!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- TAB 8: VÂN TAY VÔ HÌNH TRUY VẾT RÒ RỈ HỢP ĐỒNG MẬT (ZERO-WIDTH LEAK TRACER) -->
+    <!-- ================================================================== -->
+    <section id="tab-leak" class="tab-panel">
+      <div class="workbench-grid">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>🕵️‍♂️ Nhúng "Vân Tay Vô Hình" Riêng Cho Từng Đối Tác (Zero-Width Steganography)</h2>
+              <p class="panel-desc">Cài gói tin 40-bit kèm mã kiểm tra CRC-8 bằng ký tự độ rộng = 0 vào TỪNG ĐOẠN VĂN — mắt thường không thể nhìn thấy dù kiểm tra kỹ!</p>
+            </div>
+          </div>
+
+          <div class="builder-form">
+            <div class="form-group">
+              <label>Danh sách Đối tác / Người nhận bản thảo mật (Mỗi dòng 1 tên):</label>
+              <textarea id="leakRecipientsInput" class="redline-textarea" style="height:110px;">Đối tác Alpha Ventures (alpha@ventures.vn)
+Công ty Cổ phần Beta Tech (beta@tech.io)
+Nhà thầu phụ Gamma Solutions (gamma@corp.vn)</textarea>
+            </div>
+
+            <button id="btnEmbedLeakWatermarks" class="btn btn-gold" style="justify-content:center; padding:11px;">
+              🧬 Tạo Các Bản Hợp Đồng Đã Gắn Vân Tay Vô Hình Cho Từng Người Nhận
+            </button>
+
+            <div id="watermarkedCopiesList" class="findings-list" style="max-height:310px;"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>🔍 Máy Truy Vết Nguồn Rò Rỉ (Forensic Traitor Detector)</h2>
+              <p class="panel-desc">Khi phát hiện 1 câu hoặc 1 điều khoản báo giá mật bị tung lên Zalo/Mạng xã hội, dán đoạn văn bị lộ vào đây để bắt tận tay thủ phạm!</p>
+            </div>
+          </div>
+
+          <textarea id="leakedSnippetInput" class="redline-textarea" style="height:190px; margin-bottom:12px;" placeholder="Dán đoạn văn bản bị rò rỉ (dù chỉ 1 câu ngắn cắt ra từ giữa hợp đồng) vào đây để giải mã vân tay vô hình..."></textarea>
+
+          <button id="btnTraceLeaker" class="btn btn-emerald" style="justify-content:center; padding:11px; margin-bottom:12px;">
+            🚨 Giải Mã Vân Tay Zero-Width &amp; Chỉ Đích Danh Người Làm Lộ
+          </button>
+
+          <div id="leakTraceResultBox"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- TAB 7: SO SÁNH 2 BẢN THẢO HỢP ĐỒNG (VISUAL REDLINE DIFF) -->
+    <!-- ================================================================== -->
+    <section id="tab-redline" class="tab-panel">
+      <div class="redline-top-controls">
+        <div>
+          <h2>🔍 Bàn Đối Chiếu 2 Phiên Bản Hợp Đồng (Visual Redline &amp; Sneaky Edit Detector)</h2>
+          <p class="panel-desc">Phát hiện đối tác âm thầm đổi số tiền, đổi "phải/shall" thành "có thể/may" hoặc xóa từ "không/not"</p>
+        </div>
+        <div class="panel-tools">
+          <button id="btnLoadPresetRedline" class="btn btn-outline">🔄 Nạp Bản Đối Tác Sửa Của Mẫu Đang Chọn</button>
+          <button id="btnRunRedlineDiff" class="btn btn-gold">⚡ Chạy So Sánh Redline Chi Tiết</button>
+        </div>
+      </div>
+
+      <div class="redline-inputs-grid">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>📄 Bản Thảo Gốc (Version 1)</h3>
+            <label class="btn btn-outline btn-sm file-upload-label">
+              📂 Nạp .DOCX / .PDF Gốc
+              <input type="file" id="redlineUploadV1" accept=".docx,.pdf,.png,.jpg,.txt" hidden />
+            </label>
+          </div>
+          <textarea id="redlineTextV1" class="redline-textarea" spellcheck="false"></textarea>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>📝 Bản Đối Tác Gửi Lại (Version 2)</h3>
+            <label class="btn btn-outline btn-sm file-upload-label">
+              📂 Nạp .DOCX / .PDF Đối Tác
+              <input type="file" id="redlineUploadV2" accept=".docx,.pdf,.png,.jpg,.txt" hidden />
+            </label>
+          </div>
+          <textarea id="redlineTextV2" class="redline-textarea" spellcheck="false"></textarea>
+        </div>
+      </div>
+
+      <div id="redlineSummaryRow" class="redline-summary-row"></div>
+      <div id="sneakyAlertsBox" class="sneaky-alerts-box"></div>
+
+      <div class="panel" style="margin-top: 16px;">
+        <div class="panel-header">
+          <div>
+            <h3>📊 Bảng Đối Chiếu Từng Điều Khoản (Chấp Nhận / Từ Chối Thay Đổi)</h3>
+            <p class="panel-desc">Chữ <span class="diff-removed-sample">gạch đỏ</span> là nội dung bị xóa; chữ <span class="diff-added-sample">bôi xanh</span> là nội dung thêm vào</p>
+          </div>
+          <button id="btnApplyMergedToAuditor" class="btn btn-emerald btn-sm">
+            ✅ Đẩy Bản Đã Duyệt Sang Trạm Kiểm Toán
+          </button>
+        </div>
+        <div id="redlineDiffList" class="redline-diff-list"></div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- TAB 8: CHE DỮ LIỆU NHẠY CẢM (PII VAULT) & TẠO HỢP ĐỒNG AN TOÀN -->
+    <!-- ================================================================== -->
+    <section id="tab-pii" class="tab-panel">
+      <div class="redline-top-controls">
+        <div>
+          <h2>🕵️ Lá Chắn Che Dữ Liệu Nhạy Cảm (Reversible PII Vault) &amp; Xưởng Hợp Đồng Chuẩn An Toàn</h2>
+          <p class="panel-desc">Ẩn CCCD, MST, SĐT, Email, STK, Lương trước khi gửi lên AI đám mây &amp; Khởi tạo hợp đồng chuẩn 100/100</p>
+        </div>
+        <div class="panel-tools">
+          <select id="piiModeSelect" class="select-control">
+            <option value="TOKEN_VAULT">🔐 Chế độ Thẻ Khôi Phục ([CCCD_01], [PHONE_01])</option>
+            <option value="BLACKOUT">⬛ Chế độ Bôi Đen Tuyệt Mật (████████████)</option>
+            <option value="PARTIAL_MASK">👁️ Chế độ Che Một Phần (098***21, 079***45)</option>
+          </select>
+          <button id="btnRunPiiRedact" class="btn btn-gold">🛡️ Che PII</button>
+          <button id="btnRestorePii" class="btn btn-emerald">🔓 Khôi Phục PII</button>
+          <button id="btnCopyRedacted" class="btn btn-outline">📋 Copy</button>
+        </div>
+      </div>
+
+      <div class="workbench-grid" style="margin-bottom:18px;">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>📄 Văn Bản Hợp Đồng Đã Che PII</h3>
+            <span id="piiCountBadge" class="grade-pill">0 mục</span>
+          </div>
+          <textarea id="piiRedactedTextarea" class="contract-raw-editor" style="height: 310px;" spellcheck="false"></textarea>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>🔑 Két Sắt Ánh Xạ Dữ Liệu Gốc (Vault)</h3>
+          </div>
+          <div id="piiVaultTableWrap" class="findings-list" style="max-height:310px;"></div>
+        </div>
+      </div>
+
+      <!-- SAFE CONTRACT BUILDER SECTION -->
+      <div class="workbench-grid">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>📐 Khởi Tạo Hợp Đồng Chuẩn An Toàn (Safe Contract Builder)</h3>
+          </div>
+          <div class="builder-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Loại Hợp Đồng:</label>
+                <select id="builderType" class="select-control">
+                  <option value="FREELANCE_IT">💻 Hợp Đồng Phần Mềm / Freelance IT</option>
+                  <option value="HOUSE_LEASE">🏠 Hợp Đồng Thuê Nhà / Mặt Bằng</option>
+                  <option value="LABOR_STANDARD">👔 Hợp Đồng Lao Động &amp; NDA</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Giá trị / Thời hạn:</label>
+                <div style="display:flex; gap:6px;">
+                  <input type="text" id="buildAmount" class="input-control" style="width:55%;" value="150.000.000 VNĐ" />
+                  <input type="text" id="buildDuration" class="input-control" style="width:45%;" value="06 tháng" />
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Bên A:</label>
+                <input type="text" id="buildPartyA" class="input-control" value="CÔNG TY TNHH GIẢI PHÁP SỐ ĐẠI VIỆT" />
+              </div>
+              <div class="form-group">
+                <label>Bên B:</label>
+                <input type="text" id="buildPartyB" class="input-control" value="ÔNG NGUYỄN VĂN AN" />
+              </div>
+            </div>
+            <div class="checkbox-grid" style="grid-template-columns:1fr 1fr;">
+              <label><input type="checkbox" id="chkCapPenalty" checked /> Trần phạt ≤ 8% (Luật TM)</label>
+              <label><input type="checkbox" id="chkDeemedAccept" checked /> Nghiệm thu mặc nhiên 7 ngày</label>
+              <label><input type="checkbox" id="chkBackgroundIp" checked /> Giữ quyền Background IP</label>
+              <label><input type="checkbox" id="chkLiabilityCap" checked /> Trần bồi thường ≤ 100%</label>
+              <label><input type="checkbox" id="chkForceMajeure" checked /> Bất khả kháng 2 chiều</label>
+              <label><input type="checkbox" id="chkDataPrivacy" checked /> Bảo vệ dữ liệu NĐ 13/2023</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>📄 Bản Xem Trước Hợp Đồng Chuẩn An Toàn (100/100)</h3>
+            <button id="btnSendBuilderToAuditor" class="btn btn-emerald btn-sm">🛡️ Đưa Sang Trạm Kiểm Toán</button>
+          </div>
+          <textarea id="builderPreviewText" class="contract-raw-editor" style="height: 250px;" spellcheck="false"></textarea>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toastBox" class="toast hidden"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

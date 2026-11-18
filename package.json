@@ -1,0 +1,21 @@
+{
+  "name": "contract-intelligence",
+  "version": "1.0.0",
+  "description": "ContractShield & Redline Studio — Hệ thống Kiểm toán Rủi ro Hợp đồng Pháp lý, Bắt Điều khoản Bẫy, So sánh Bản thảo (Redline Diff), Che dữ liệu nhạy cảm (PII Redactor) & Xuất Word .DOCX",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test-e2e.js"
+  },
+  "keywords": [
+    "legaltech",
+    "contract-audit",
+    "redline-diff",
+    "pii-redactor",
+    "docx-generator",
+    "vietnamese-law"
+  ],
+  "author": "AI_App Ecosystem",
+  "license": "MIT"
+}
+
